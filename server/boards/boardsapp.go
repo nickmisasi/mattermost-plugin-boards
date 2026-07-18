@@ -12,6 +12,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-boards/server/model"
 	"github.com/mattermost/mattermost-plugin-boards/server/server"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/notify"
+	"github.com/mattermost/mattermost-plugin-boards/server/services/notify/notifywebhook"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/permissions/mmpermissions"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/store"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/store/sqlstore"
@@ -119,6 +120,9 @@ func NewBoardsApp(api model.ServicesAPI, manifest *mm_model.Manifest) (*BoardsAp
 	}
 	notifyBackends = append(notifyBackends, subscriptionsBackend)
 	mentionsBackend.AddListener(subscriptionsBackend)
+
+	// PoC: outbound webhook delivery of block change events (spike).
+	notifyBackends = append(notifyBackends, notifywebhook.New(logger))
 
 	params := server.Params{
 		Cfg:                cfg,
