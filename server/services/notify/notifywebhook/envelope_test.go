@@ -45,7 +45,14 @@ func TestEnvelopeJSONPresence(t *testing.T) {
 
 		actual, err := json.Marshal(newEnvelope(evt, "event-id", int64(1)))
 		require.NoError(t, err)
-		assert.NotContains(t, string(actual), `"blockOld"`)
+
+		var payload map[string]json.RawMessage
+		require.NoError(t, json.Unmarshal(actual, &payload))
+
+		_, hasBlockOld := payload["blockOld"]
+		assert.False(t, hasBlockOld)
+		_, hasBlockChanged := payload["blockChanged"]
+		assert.True(t, hasBlockChanged)
 	})
 
 	t.Run("nil card omits card", func(t *testing.T) {
@@ -54,7 +61,14 @@ func TestEnvelopeJSONPresence(t *testing.T) {
 
 		actual, err := json.Marshal(newEnvelope(evt, "event-id", int64(1)))
 		require.NoError(t, err)
-		assert.NotContains(t, string(actual), `"card":`)
+
+		var payload map[string]json.RawMessage
+		require.NoError(t, json.Unmarshal(actual, &payload))
+
+		_, hasCard := payload["card"]
+		assert.False(t, hasCard)
+		_, hasBlockChanged := payload["blockChanged"]
+		assert.True(t, hasBlockChanged)
 	})
 }
 

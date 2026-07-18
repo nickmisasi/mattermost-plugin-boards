@@ -73,7 +73,7 @@ func (b *Backend) BlockChanged(evt notify.BlockChangeEvent) error {
 // (boards/configuration.go OnConfigurationChange -> server.UpdateAppConfig);
 // backends are never rebuilt. The URL setting is introduced in a later
 // phase; until then this always returns nil.
-func (b *Backend) configuredURLs() []string {
+func (b *Backend) configuredURLs() []string { //nolint:unparam // config fields for URLs land in a follow-up; the accessor is the seam
 	if b.cfg == nil {
 		return nil
 	}

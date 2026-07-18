@@ -9,4 +9,8 @@
 // Configuration (endpoint URLs, signing secret, event filter) and
 // delivery (signed, asynchronous, bounded-retry HTTP) are added in later
 // phases; until then the backend registers but performs no I/O.
+//
+// The delete-event rule that blockOld duplicates blockChanged reflects
+// current producer behavior in app/blocks.go:369. A producer-level contract
+// test is tracked in the Phase 4 upstream notes.
 package notifywebhook

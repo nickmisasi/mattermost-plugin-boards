@@ -764,3 +764,10 @@ has no direct package reference. Adding the import would make the server fail to
 compile with an unused import. The package is imported where it is used in
 `server/boards/notifications.go`; the prescribed single backend append remains
 in `boardsapp.go`.
+
+Remediation after review: added the plan-sanctioned inline `unparam` suppression
+to `configuredURLs()`, changed optional-field tests to inspect unmarshaled
+`json.RawMessage` maps, and documented that the delete-event duplication rule
+rests on current producer behavior pending a Phase 4 producer-level test. The
+combined build, race-test, and vet command passes, and the repo-pinned
+`golangci-lint` v1.64.8 command passes for `notifywebhook` and `boards`.
