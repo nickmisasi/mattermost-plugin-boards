@@ -72,6 +72,10 @@ type Configuration struct {
 
 	NotifyFreqCardSeconds  int `json:"notify_freq_card_seconds" mapstructure:"notify_freq_card_seconds"`
 	NotifyFreqBoardSeconds int `json:"notify_freq_board_seconds" mapstructure:"notify_freq_board_seconds"`
+
+	NotifyWebhookURLs       string `json:"notify_webhook_urls" mapstructure:"notify_webhook_urls"`
+	NotifyWebhookSecret     string `json:"notify_webhook_secret" mapstructure:"notify_webhook_secret"`
+	NotifyWebhookEventTypes string `json:"notify_webhook_event_types" mapstructure:"notify_webhook_event_types"`
 }
 
 // ReadConfigFile read the configuration from the filesystem.

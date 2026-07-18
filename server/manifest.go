@@ -18,7 +18,6 @@ const manifestStr = `
   "description": "The Mattermost Boards plugin",
   "homepage_url": "https://github.com/mattermost/mattermost-plugin-boards",
   "support_url": "https://github.com/mattermost/mattermost-plugin-boards/issues",
-  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-boards/releases",
   "icon_path": "assets/starter-template-icon.svg",
   "version": "9.2.2",
   "min_server_version": "11.9.0",
@@ -46,6 +45,33 @@ const manifestStr = `
         "help_text": "This allows board editors to share boards that can be accessed by anyone with the link.",
         "placeholder": "",
         "default": false,
+        "hosting": ""
+      },
+      {
+        "key": "NotifyWebhookURLs",
+        "display_name": "Board Change Webhook URLs:",
+        "type": "longtext",
+        "help_text": "One webhook endpoint URL per line. Every board change event (add, update, or delete of a block) is POSTed to each URL as a JSON envelope. URLs must use https; http is allowed only for localhost and loopback addresses, for development. Delivery is asynchronous and at-least-once: consumers must deduplicate using the envelope eventId field, and events may arrive out of order or, in rare cases (server restart, sustained endpoint failure), not at all. Leave empty to disable.",
+        "placeholder": "",
+        "default": "",
+        "hosting": ""
+      },
+      {
+        "key": "NotifyWebhookSecret",
+        "display_name": "Board Change Webhook Secret:",
+        "type": "text",
+        "help_text": "Shared secret used to sign webhook requests with HMAC-SHA256. Each request carries two headers: X-Boards-Webhook-Timestamp (milliseconds since epoch) and X-Boards-Webhook-Signature (sha256= followed by the lowercase hex HMAC of the timestamp, a period, and the raw request body). Receivers should verify the signature and reject requests whose timestamp falls outside a short replay window; 5 minutes is recommended, and retried deliveries are re-signed with a fresh timestamp. If empty, requests are sent unsigned (not recommended).",
+        "placeholder": "",
+        "default": "",
+        "hosting": ""
+      },
+      {
+        "key": "NotifyWebhookEventTypes",
+        "display_name": "Board Change Webhook Event Filter:",
+        "type": "longtext",
+        "help_text": "Optional comma-separated filter. Tokens may be actions (add, update, delete) and block types (board, card, view, text, checkbox, comment, image, attachment, divider). An event is delivered when its action matches any listed action (or no actions are listed) and its changed block type matches any listed type (or no types are listed). Unknown tokens are ignored. Example: add,delete,card,comment. Leave empty to deliver all events.",
+        "placeholder": "",
+        "default": "",
         "hosting": ""
       }
     ]

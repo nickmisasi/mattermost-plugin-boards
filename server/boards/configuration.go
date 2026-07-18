@@ -89,6 +89,10 @@ func (b *BoardsApp) OnConfigurationChange() error {
 	b.setConfiguration(configuration)
 	b.server.Config().EnablePublicSharedBoards = enableShareBoards
 
+	b.server.Config().NotifyWebhookURLs = getPluginSettingString(*mmconfig, notifyWebhookURLsKey, "")
+	b.server.Config().NotifyWebhookSecret = getPluginSettingString(*mmconfig, notifyWebhookSecretKey, "")
+	b.server.Config().NotifyWebhookEventTypes = getPluginSettingString(*mmconfig, notifyWebhookEventTypesKey, "")
+
 	// handle Data Retention settings
 	enableBoardsDeletion := false
 	if mmconfig.DataRetentionSettings.EnableBoardsDeletion != nil {

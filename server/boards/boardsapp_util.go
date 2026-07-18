@@ -108,6 +108,9 @@ func createBoardsConfig(mmconfig mm_model.Config, baseURL string, serverID strin
 		FeatureFlags:             featureFlags,
 		NotifyFreqCardSeconds:    getPluginSettingInt(mmconfig, notifyFreqCardSecondsKey, 120),
 		NotifyFreqBoardSeconds:   getPluginSettingInt(mmconfig, notifyFreqBoardSecondsKey, 86400),
+		NotifyWebhookURLs:        getPluginSettingString(mmconfig, notifyWebhookURLsKey, ""),
+		NotifyWebhookSecret:      getPluginSettingString(mmconfig, notifyWebhookSecretKey, ""),
+		NotifyWebhookEventTypes:  getPluginSettingString(mmconfig, notifyWebhookEventTypesKey, ""),
 		EnableDataRetention:      enableBoardsDeletion,
 		DataRetentionDays:        *mmconfig.DataRetentionSettings.BoardsRetentionDays,
 		TeammateNameDisplay:      *mmconfig.TeamSettings.TeammateNameDisplay,
@@ -154,4 +157,16 @@ func getPluginSettingInt(mmConfig mm_model.Config, key string, def int) int {
 		return def
 	}
 	return int(math.Round(valFloat))
+}
+
+func getPluginSettingString(mmConfig mm_model.Config, key string, def string) string { //nolint:unparam // def mirrors getPluginSettingInt; call sites document their fallback
+	val, ok := getPluginSetting(mmConfig, key)
+	if !ok {
+		return def
+	}
+	valString, ok := val.(string)
+	if !ok {
+		return def
+	}
+	return valString
 }

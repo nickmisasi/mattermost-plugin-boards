@@ -864,3 +864,13 @@ make check-style
   `net/http`, `httptest` are all stdlib.
 - **Do not weaken or skip linters**; the only sanctioned suppression is the
   conditional gosec one named in Task 2's notes.
+
+## Implementation Summary
+
+Implemented the frozen HMAC-SHA256 signing contract and all three OpenSSL test
+vectors. Added bounded non-blocking queueing, two-worker asynchronous delivery,
+per-attempt signing, retry classification/backoff, bounded response draining,
+and shutdown draining. Rewired backend lifecycle and per-URL fanout, finalized
+the package semantics documentation, and added the full signing, delivery, and
+end-to-end `httptest` suites. The required server build, race-enabled notify and
+Boards suites, and pinned focused golangci-lint command all pass.

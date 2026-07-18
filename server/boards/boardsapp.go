@@ -30,6 +30,10 @@ const (
 
 	notifyFreqCardSecondsKey  = "notify_freq_card_seconds"
 	notifyFreqBoardSecondsKey = "notify_freq_board_seconds"
+
+	notifyWebhookURLsKey       = "notifywebhookurls"
+	notifyWebhookSecretKey     = "notifywebhooksecret"
+	notifyWebhookEventTypesKey = "notifywebhookeventtypes"
 )
 
 type BoardsEmbed struct {

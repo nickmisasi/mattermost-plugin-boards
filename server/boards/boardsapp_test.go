@@ -96,6 +96,31 @@ func TestSetConfiguration(t *testing.T) {
 		config := createBoardsConfig(*mmConfig, "", "")
 		assert.Equal(t, true, config.EnablePublicSharedBoards)
 	})
+
+	t.Run("test webhook notification settings", func(t *testing.T) {
+		mmConfig := baseConfig
+		mmConfig.PluginSettings.Plugins = make(map[string]map[string]interface{})
+		mmConfig.PluginSettings.Plugins[PluginName] = make(map[string]interface{})
+		mmConfig.PluginSettings.Plugins[PluginName][notifyWebhookURLsKey] = "https://factory.example/hook"
+		mmConfig.PluginSettings.Plugins[PluginName][notifyWebhookSecretKey] = "hunter2"
+		mmConfig.PluginSettings.Plugins[PluginName][notifyWebhookEventTypesKey] = "add,card"
+
+		config := createBoardsConfig(*mmConfig, "", "")
+		assert.Equal(t, "https://factory.example/hook", config.NotifyWebhookURLs)
+		assert.Equal(t, "hunter2", config.NotifyWebhookSecret)
+		assert.Equal(t, "add,card", config.NotifyWebhookEventTypes)
+	})
+
+	t.Run("test webhook notification setting defaults", func(t *testing.T) {
+		mmConfig := baseConfig
+		mmConfig.PluginSettings.Plugins = make(map[string]map[string]interface{})
+		mmConfig.PluginSettings.Plugins[PluginName] = make(map[string]interface{})
+
+		config := createBoardsConfig(*mmConfig, "", "")
+		assert.Empty(t, config.NotifyWebhookURLs)
+		assert.Empty(t, config.NotifyWebhookSecret)
+		assert.Empty(t, config.NotifyWebhookEventTypes)
+	})
 }
 
 func TestServeHTTP(t *testing.T) {

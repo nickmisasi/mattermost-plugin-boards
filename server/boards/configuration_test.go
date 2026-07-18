@@ -64,6 +64,9 @@ func TestOnConfigurationChange(t *testing.T) {
 	basePlugins := make(map[string]map[string]interface{})
 	basePlugins[PluginName] = make(map[string]interface{})
 	basePlugins[PluginName][SharedBoardsName] = true
+	basePlugins[PluginName][notifyWebhookURLsKey] = "https://factory.example/hook"
+	basePlugins[PluginName][notifyWebhookSecretKey] = "test-secret"
+	basePlugins[PluginName][notifyWebhookEventTypesKey] = "update,card"
 
 	basePluginSettings := &serverModel.PluginSettings{
 		Directory: &stringRef,
@@ -113,6 +116,9 @@ func TestOnConfigurationChange(t *testing.T) {
 		// make sure both App and Server got updated
 		assert.True(t, b.server.Config().EnablePublicSharedBoards)
 		assert.True(t, b.server.App().GetClientConfig().EnablePublicSharedBoards)
+		assert.Equal(t, "https://factory.example/hook", b.server.Config().NotifyWebhookURLs)
+		assert.Equal(t, "test-secret", b.server.Config().NotifyWebhookSecret)
+		assert.Equal(t, "update,card", b.server.Config().NotifyWebhookEventTypes)
 	})
 }
 
