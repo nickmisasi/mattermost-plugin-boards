@@ -106,9 +106,10 @@ func TestSetConfiguration(t *testing.T) {
 		mmConfig.PluginSettings.Plugins[PluginName][notifyWebhookEventTypesKey] = "add,card"
 
 		config := createBoardsConfig(*mmConfig, "", "")
-		assert.Equal(t, "https://factory.example/hook", config.NotifyWebhookURLs)
-		assert.Equal(t, "hunter2", config.NotifyWebhookSecret)
-		assert.Equal(t, "add,card", config.NotifyWebhookEventTypes)
+		settings := config.NotifyWebhookSettings.Load()
+		assert.Equal(t, "https://factory.example/hook", settings.URLs)
+		assert.Equal(t, "hunter2", settings.Secret)
+		assert.Equal(t, "add,card", settings.EventTypes)
 	})
 
 	t.Run("test webhook notification setting defaults", func(t *testing.T) {
@@ -117,9 +118,10 @@ func TestSetConfiguration(t *testing.T) {
 		mmConfig.PluginSettings.Plugins[PluginName] = make(map[string]interface{})
 
 		config := createBoardsConfig(*mmConfig, "", "")
-		assert.Empty(t, config.NotifyWebhookURLs)
-		assert.Empty(t, config.NotifyWebhookSecret)
-		assert.Empty(t, config.NotifyWebhookEventTypes)
+		settings := config.NotifyWebhookSettings.Load()
+		assert.Empty(t, settings.URLs)
+		assert.Empty(t, settings.Secret)
+		assert.Empty(t, settings.EventTypes)
 	})
 }
 

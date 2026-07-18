@@ -749,8 +749,11 @@ make check-style
 ## Implementation Summary
 
 Implemented the three System Console settings and regenerated both manifest
-artifacts with `make apply`. Added the raw configuration fields, initial and
-live setting propagation, HTTPS/loopback URL validation, memoized parsing, and
-the action/block-type filter. Added parsing, live-config, backend-filter, and
-Boards configuration tests. Phase 2's focused build and race-enabled tests
-passed before Phase 3 implementation began.
+artifacts. Added initial and live setting propagation through atomically
+published immutable `WebhookSettings` snapshots, HTTPS/loopback URL validation,
+pointer-memoized parsing, and the action/block-type filter. The signing secret
+is marked as secret in the plugin and generated manifests; the manifest version
+and release-notes URL are preserved. Parsing coverage includes every supported
+block type, and the backend-filter test asserts queue behavior. A concurrent
+config-publication test exercises `BlockChanged` and live delivery workers
+under the race detector.

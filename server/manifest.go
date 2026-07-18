@@ -18,6 +18,7 @@ const manifestStr = `
   "description": "The Mattermost Boards plugin",
   "homepage_url": "https://github.com/mattermost/mattermost-plugin-boards",
   "support_url": "https://github.com/mattermost/mattermost-plugin-boards/issues",
+  "release_notes_url": "https://github.com/mattermost/mattermost-plugin-boards/releases",
   "icon_path": "assets/starter-template-icon.svg",
   "version": "9.2.2",
   "min_server_version": "11.9.0",
@@ -63,6 +64,7 @@ const manifestStr = `
         "help_text": "Shared secret used to sign webhook requests with HMAC-SHA256. Each request carries two headers: X-Boards-Webhook-Timestamp (milliseconds since epoch) and X-Boards-Webhook-Signature (sha256= followed by the lowercase hex HMAC of the timestamp, a period, and the raw request body). Receivers should verify the signature and reject requests whose timestamp falls outside a short replay window; 5 minutes is recommended, and retried deliveries are re-signed with a fresh timestamp. If empty, requests are sent unsigned (not recommended).",
         "placeholder": "",
         "default": "",
+        "secret": true,
         "hosting": ""
       },
       {

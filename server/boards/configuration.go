@@ -5,6 +5,8 @@ package boards
 
 import (
 	"reflect"
+
+	"github.com/mattermost/mattermost-plugin-boards/server/services/config"
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -89,9 +91,16 @@ func (b *BoardsApp) OnConfigurationChange() error {
 	b.setConfiguration(configuration)
 	b.server.Config().EnablePublicSharedBoards = enableShareBoards
 
-	b.server.Config().NotifyWebhookURLs = getPluginSettingString(*mmconfig, notifyWebhookURLsKey, "")
-	b.server.Config().NotifyWebhookSecret = getPluginSettingString(*mmconfig, notifyWebhookSecretKey, "")
-	b.server.Config().NotifyWebhookEventTypes = getPluginSettingString(*mmconfig, notifyWebhookEventTypesKey, "")
+	webhookSettings := config.WebhookSettings{
+		URLs:       getPluginSettingString(*mmconfig, notifyWebhookURLsKey, ""),
+		Secret:     getPluginSettingString(*mmconfig, notifyWebhookSecretKey, ""),
+		EventTypes: getPluginSettingString(*mmconfig, notifyWebhookEventTypesKey, ""),
+	}
+	if b.server.Config().NotifyWebhookSettings == nil {
+		b.server.Config().NotifyWebhookSettings = config.NewWebhookSettingsStore(webhookSettings)
+	} else {
+		b.server.Config().NotifyWebhookSettings.Store(webhookSettings)
+	}
 
 	// handle Data Retention settings
 	enableBoardsDeletion := false

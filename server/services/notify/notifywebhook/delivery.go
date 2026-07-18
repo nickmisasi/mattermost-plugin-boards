@@ -55,6 +55,7 @@ type delivererParams struct {
 	workers   int
 	backoff   []time.Duration
 	client    *http.Client
+	stopAfter time.Duration
 }
 
 // deliverer owns the bounded queue and worker pool that perform signed,
@@ -62,11 +63,12 @@ type delivererParams struct {
 // notifier lifecycle (notifier.go:59-105) and the CallbackQueue drain
 // pattern (utils/callbackqueue.go:56-87), but with drop-on-full enqueue.
 type deliverer struct {
-	logger  mlog.LoggerIFace
-	secret  func() string
-	queue   chan deliveryJob
-	backoff []time.Duration
-	client  *http.Client
+	logger    mlog.LoggerIFace
+	secret    func() string
+	queue     chan deliveryJob
+	backoff   []time.Duration
+	client    *http.Client
+	stopAfter time.Duration
 
 	mux     sync.Mutex
 	done    chan struct{}
@@ -85,15 +87,24 @@ func newDeliverer(params delivererParams) *deliverer {
 		params.backoff = defaultBackoff
 	}
 	if params.client == nil {
-		params.client = &http.Client{Timeout: requestTimeout}
+		params.client = &http.Client{
+			Timeout: requestTimeout,
+			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+	}
+	if params.stopAfter == 0 {
+		params.stopAfter = shutdownTimeout
 	}
 	return &deliverer{
-		logger:  params.logger,
-		secret:  params.secret,
-		queue:   make(chan deliveryJob, params.queueSize),
-		backoff: params.backoff,
-		client:  params.client,
-		workers: params.workers,
+		logger:    params.logger,
+		secret:    params.secret,
+		queue:     make(chan deliveryJob, params.queueSize),
+		backoff:   params.backoff,
+		client:    params.client,
+		stopAfter: params.stopAfter,
+		workers:   params.workers,
 	}
 }
 
@@ -127,7 +138,7 @@ func (d *deliverer) stop() bool {
 	d.done = nil
 	d.mux.Unlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), d.stopAfter)
 	defer cancel()
 
 	workersDone := make(chan struct{})
@@ -146,7 +157,7 @@ func (d *deliverer) stop() bool {
 	for {
 		select {
 		case job := <-d.queue:
-			d.attempt(job)
+			d.attempt(ctx, job)
 		case <-ctx.Done():
 			d.logger.Warn("notifyWebhook shutdown timed out draining delivery queue",
 				mlog.Int("undelivered", len(d.queue)),
@@ -200,7 +211,7 @@ func (d *deliverer) deliverSafe(job deliveryJob, done chan struct{}) {
 // early on shutdown so in-flight retries cannot stall the drain deadline.
 func (d *deliverer) deliver(job deliveryJob, done chan struct{}) {
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		switch d.attempt(job) {
+		switch d.attempt(context.Background(), job) {
 		case attemptSuccess:
 			return
 		case attemptDrop:
@@ -229,11 +240,11 @@ func (d *deliverer) deliver(job deliveryJob, done chan struct{}) {
 }
 
 // attempt performs one signed POST and classifies the outcome.
-func (d *deliverer) attempt(job deliveryJob) attemptResult {
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+func (d *deliverer) attempt(ctx context.Context, job deliveryJob) attemptResult {
+	requestCtx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, job.url, bytes.NewReader(job.body))
+	req, err := http.NewRequestWithContext(requestCtx, http.MethodPost, job.url, bytes.NewReader(job.body))
 	if err != nil {
 		d.logger.Error("notifyWebhook building request failed",
 			mlog.String("event_id", job.eventID),

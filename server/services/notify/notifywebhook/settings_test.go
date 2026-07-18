@@ -77,6 +77,28 @@ func TestParseEventFilter(t *testing.T) {
 			}
 		})
 	}
+
+	allBlockTypes := []struct {
+		token     string
+		blockType model.BlockType
+	}{
+		{token: "board", blockType: model.TypeBoard},
+		{token: "card", blockType: model.TypeCard},
+		{token: "view", blockType: model.TypeView},
+		{token: "text", blockType: model.TypeText},
+		{token: "checkbox", blockType: model.TypeCheckbox},
+		{token: "comment", blockType: model.TypeComment},
+		{token: "image", blockType: model.TypeImage},
+		{token: "attachment", blockType: model.TypeAttachment},
+		{token: "divider", blockType: model.TypeDivider},
+	}
+	for _, tt := range allBlockTypes {
+		t.Run("block type "+tt.token, func(t *testing.T) {
+			filter, unknown := parseEventFilter(tt.token)
+			assert.Empty(t, unknown)
+			assert.Equal(t, map[model.BlockType]struct{}{tt.blockType: {}}, filter.types)
+		})
+	}
 }
 
 func TestEventFilterMatches(t *testing.T) {

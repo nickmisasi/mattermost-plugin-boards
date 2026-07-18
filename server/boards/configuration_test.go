@@ -116,9 +116,10 @@ func TestOnConfigurationChange(t *testing.T) {
 		// make sure both App and Server got updated
 		assert.True(t, b.server.Config().EnablePublicSharedBoards)
 		assert.True(t, b.server.App().GetClientConfig().EnablePublicSharedBoards)
-		assert.Equal(t, "https://factory.example/hook", b.server.Config().NotifyWebhookURLs)
-		assert.Equal(t, "test-secret", b.server.Config().NotifyWebhookSecret)
-		assert.Equal(t, "update,card", b.server.Config().NotifyWebhookEventTypes)
+		settings := b.server.Config().NotifyWebhookSettings.Load()
+		assert.Equal(t, "https://factory.example/hook", settings.URLs)
+		assert.Equal(t, "test-secret", settings.Secret)
+		assert.Equal(t, "update,card", settings.EventTypes)
 	})
 }
 

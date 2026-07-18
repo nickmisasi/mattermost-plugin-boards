@@ -38,6 +38,7 @@
             "type": "text",
             "display_name": "Board Change Webhook Secret:",
             "default": "",
+            "secret": true,
             "help_text": "Shared secret used to sign webhook requests with HMAC-SHA256. Each request carries two headers: X-Boards-Webhook-Timestamp (milliseconds since epoch) and X-Boards-Webhook-Signature (sha256= followed by the lowercase hex HMAC of the timestamp, a period, and the raw request body). Receivers should verify the signature and reject requests whose timestamp falls outside a short replay window; 5 minutes is recommended, and retried deliveries are re-signed with a fresh timestamp. If empty, requests are sent unsigned (not recommended)."
         }, {
             "key": "NotifyWebhookEventTypes",

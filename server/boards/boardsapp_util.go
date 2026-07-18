@@ -81,6 +81,11 @@ func createBoardsConfig(mmconfig mm_model.Config, baseURL string, serverID strin
 	}
 
 	serverRoot := baseURL + "/plugins/focalboard"
+	webhookSettings := config.WebhookSettings{
+		URLs:       getPluginSettingString(mmconfig, notifyWebhookURLsKey, ""),
+		Secret:     getPluginSettingString(mmconfig, notifyWebhookSecretKey, ""),
+		EventTypes: getPluginSettingString(mmconfig, notifyWebhookEventTypesKey, ""),
+	}
 
 	return &config.Configuration{
 		ServerRoot:               serverRoot,
@@ -108,9 +113,7 @@ func createBoardsConfig(mmconfig mm_model.Config, baseURL string, serverID strin
 		FeatureFlags:             featureFlags,
 		NotifyFreqCardSeconds:    getPluginSettingInt(mmconfig, notifyFreqCardSecondsKey, 120),
 		NotifyFreqBoardSeconds:   getPluginSettingInt(mmconfig, notifyFreqBoardSecondsKey, 86400),
-		NotifyWebhookURLs:        getPluginSettingString(mmconfig, notifyWebhookURLsKey, ""),
-		NotifyWebhookSecret:      getPluginSettingString(mmconfig, notifyWebhookSecretKey, ""),
-		NotifyWebhookEventTypes:  getPluginSettingString(mmconfig, notifyWebhookEventTypesKey, ""),
+		NotifyWebhookSettings:    config.NewWebhookSettingsStore(webhookSettings),
 		EnableDataRetention:      enableBoardsDeletion,
 		DataRetentionDays:        *mmconfig.DataRetentionSettings.BoardsRetentionDays,
 		TeammateNameDisplay:      *mmconfig.TeamSettings.TeammateNameDisplay,

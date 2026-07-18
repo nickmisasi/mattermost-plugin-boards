@@ -5,6 +5,7 @@ package config
 
 import (
 	"log"
+	"sync/atomic"
 
 	"github.com/spf13/viper"
 )
@@ -27,6 +28,38 @@ type AmazonS3Config struct {
 	SSE             bool
 	Trace           bool
 	Timeout         int64
+}
+
+// WebhookSettings is an immutable snapshot of the live webhook plugin settings.
+type WebhookSettings struct {
+	URLs       string
+	Secret     string
+	EventTypes string
+}
+
+// WebhookSettingsStore atomically publishes immutable webhook setting snapshots.
+type WebhookSettingsStore struct {
+	current atomic.Pointer[WebhookSettings]
+}
+
+// NewWebhookSettingsStore creates a store initialized with settings.
+func NewWebhookSettingsStore(settings WebhookSettings) *WebhookSettingsStore {
+	store := &WebhookSettingsStore{}
+	store.Store(settings)
+	return store
+}
+
+// Load returns the current immutable settings snapshot.
+func (s *WebhookSettingsStore) Load() *WebhookSettings {
+	if s == nil {
+		return nil
+	}
+	return s.current.Load()
+}
+
+// Store atomically publishes a new immutable settings snapshot.
+func (s *WebhookSettingsStore) Store(settings WebhookSettings) {
+	s.current.Store(&settings)
 }
 
 // Configuration is the app configuration stored in a json file.
@@ -73,9 +106,7 @@ type Configuration struct {
 	NotifyFreqCardSeconds  int `json:"notify_freq_card_seconds" mapstructure:"notify_freq_card_seconds"`
 	NotifyFreqBoardSeconds int `json:"notify_freq_board_seconds" mapstructure:"notify_freq_board_seconds"`
 
-	NotifyWebhookURLs       string `json:"notify_webhook_urls" mapstructure:"notify_webhook_urls"`
-	NotifyWebhookSecret     string `json:"notify_webhook_secret" mapstructure:"notify_webhook_secret"`
-	NotifyWebhookEventTypes string `json:"notify_webhook_event_types" mapstructure:"notify_webhook_event_types"`
+	NotifyWebhookSettings *WebhookSettingsStore `json:"-" mapstructure:"-"`
 }
 
 // ReadConfigFile read the configuration from the filesystem.

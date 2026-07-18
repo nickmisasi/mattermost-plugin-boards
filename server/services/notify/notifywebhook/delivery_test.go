@@ -28,6 +28,12 @@ type receivedRequest struct {
 	body   []byte
 }
 
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
 func recordRequest(t *testing.T, r *http.Request) receivedRequest {
 	t.Helper()
 	body, err := io.ReadAll(r.Body)
@@ -168,6 +174,44 @@ func TestDelivery_4xxNoRetry(t *testing.T) {
 	require.True(t, deliverer.stop())
 }
 
+func TestDelivery_RedirectNotFollowed(t *testing.T) {
+	targetRequests := make(chan struct{}, 1)
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		targetRequests <- struct{}{}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer target.Close()
+
+	redirectRequests := make(chan struct{}, 1)
+	redirect := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		redirectRequests <- struct{}{}
+		http.Redirect(w, r, target.URL, http.StatusTemporaryRedirect)
+	}))
+	defer redirect.Close()
+
+	deliverer := newDeliverer(delivererParams{
+		logger:    mlog.CreateConsoleTestLogger(t),
+		secret:    func() string { return "test-secret" },
+		queueSize: 1,
+		workers:   1,
+		backoff:   []time.Duration{time.Millisecond, time.Millisecond},
+	})
+	deliverer.start()
+	require.True(t, deliverer.enqueue(deliveryJob{eventID: "event-redirect", url: redirect.URL, body: []byte(`{"signed":true}`)}))
+
+	select {
+	case <-redirectRequests:
+	case <-time.After(2 * time.Second):
+		t.Fatal("redirecting endpoint did not receive request")
+	}
+	require.True(t, deliverer.stop())
+	select {
+	case <-targetRequests:
+		t.Fatal("signed webhook request followed redirect")
+	default:
+	}
+}
+
 func TestDelivery_TimeoutRetries(t *testing.T) {
 	requests := make(chan receivedRequest, maxAttempts)
 	var attempts atomic.Int32
@@ -240,6 +284,39 @@ func TestDelivery_ShutdownDrainsInFlight(t *testing.T) {
 
 	require.True(t, deliverer.stop())
 	assert.Len(t, requests, 5)
+}
+
+func TestDelivery_ShutdownDrainHonorsDeadline(t *testing.T) {
+	requestStarted := make(chan struct{}, 1)
+	client := &http.Client{
+		Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			requestStarted <- struct{}{}
+			<-req.Context().Done()
+			return nil, req.Context().Err()
+		}),
+		Timeout: time.Second,
+	}
+	const testShutdownTimeout = 50 * time.Millisecond
+	deliverer := newDeliverer(delivererParams{
+		logger:    mlog.CreateConsoleTestLogger(t),
+		secret:    func() string { return "" },
+		queueSize: 1,
+		workers:   -1,
+		backoff:   []time.Duration{time.Millisecond, time.Millisecond},
+		client:    client,
+		stopAfter: testShutdownTimeout,
+	})
+	deliverer.start()
+	require.True(t, deliverer.enqueue(deliveryJob{eventID: "hung-drain", url: "https://hung.example", body: []byte(`{}`)}))
+
+	startedAt := time.Now()
+	assert.False(t, deliverer.stop())
+	assert.Less(t, time.Since(startedAt), 5*testShutdownTimeout)
+	select {
+	case <-requestStarted:
+	default:
+		t.Fatal("shutdown drain did not attempt queued request")
+	}
 }
 
 func TestDelivery_StartStopIdempotent(t *testing.T) {
