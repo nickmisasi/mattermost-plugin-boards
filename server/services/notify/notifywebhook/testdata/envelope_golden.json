@@ -1,0 +1,118 @@
+{
+  "eventId": "e7g8i9j3k5m6n7p8q9r3s5t6u7w",
+  "occurredAt": 1784500000000,
+  "action": "update",
+  "teamId": "tjq3g5n8e7y5um6kf9r3s5t6u7w",
+  "board": {
+    "id": "b8f6h3k5m7p9r3s5t7v9w3x5y7z",
+    "teamId": "tjq3g5n8e7y5um6kf9r3s5t6u7w",
+    "channelId": "",
+    "createdBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "modifiedBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "type": "O",
+    "minimumRole": "editor",
+    "title": "Factory Runs",
+    "description": "",
+    "icon": "🏭",
+    "showDescription": false,
+    "isTemplate": false,
+    "templateVersion": 0,
+    "properties": {},
+    "cardProperties": [
+      {
+        "id": "prop-stage-id-000000000000000",
+        "name": "Stage",
+        "options": [
+          {
+            "color": "propColorGray",
+            "id": "opt-queued-000000000000000000",
+            "value": "Queued"
+          },
+          {
+            "color": "propColorYellow",
+            "id": "opt-inreview-0000000000000000",
+            "value": "In Review"
+          }
+        ],
+        "type": "select"
+      }
+    ],
+    "createAt": 1784400000000,
+    "updateAt": 1784490000000,
+    "deleteAt": 0
+  },
+  "card": {
+    "id": "c4d6f8h3k5m7p9r3s5t7v9w3x5y",
+    "parentId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z",
+    "createdBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "modifiedBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "schema": 1,
+    "type": "card",
+    "title": "Fix login crash (run #42)",
+    "fields": {
+      "contentOrder": [],
+      "icon": "🤖",
+      "isTemplate": false,
+      "properties": {
+        "prop-stage-id-000000000000000": "opt-inreview-0000000000000000"
+      }
+    },
+    "createAt": 1784410000000,
+    "updateAt": 1784500000000,
+    "deleteAt": 0,
+    "boardId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z"
+  },
+  "blockChanged": {
+    "id": "c4d6f8h3k5m7p9r3s5t7v9w3x5y",
+    "parentId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z",
+    "createdBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "modifiedBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "schema": 1,
+    "type": "card",
+    "title": "Fix login crash (run #42)",
+    "fields": {
+      "contentOrder": [],
+      "icon": "🤖",
+      "isTemplate": false,
+      "properties": {
+        "prop-stage-id-000000000000000": "opt-inreview-0000000000000000"
+      }
+    },
+    "createAt": 1784410000000,
+    "updateAt": 1784500000000,
+    "deleteAt": 0,
+    "boardId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z"
+  },
+  "blockOld": {
+    "id": "c4d6f8h3k5m7p9r3s5t7v9w3x5y",
+    "parentId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z",
+    "createdBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "modifiedBy": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "schema": 1,
+    "type": "card",
+    "title": "Fix login crash (run #42)",
+    "fields": {
+      "contentOrder": [],
+      "icon": "🤖",
+      "isTemplate": false,
+      "properties": {
+        "prop-stage-id-000000000000000": "opt-queued-000000000000000000"
+      }
+    },
+    "createAt": 1784410000000,
+    "updateAt": 1784490000000,
+    "deleteAt": 0,
+    "boardId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z"
+  },
+  "modifiedBy": {
+    "boardId": "b8f6h3k5m7p9r3s5t7v9w3x5y7z",
+    "userId": "uo5d8m3k5n7p9r3s5t7v9w3x5y7",
+    "roles": "",
+    "minimumRole": "",
+    "schemeAdmin": true,
+    "schemeEditor": false,
+    "schemeCommenter": false,
+    "schemeViewer": false,
+    "synthetic": false
+  }
+}

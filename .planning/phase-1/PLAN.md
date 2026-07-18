@@ -743,3 +743,24 @@ make check-style
 - **No new dependencies** — no ULID library, no go.mod changes.
 - **Do not delete or modify the PoC branch**; it is orientation history.
 - **No plugin.json version bump** (version is injected from git tags).
+
+## Implementation Summary
+
+Implemented the frozen `Envelope` contract, golden JSON fixture with `-update`
+support and presence tests, the inert `notifywebhook` backend with the
+`configuredURLs()` nil seam, the `IDTypeWebhookEvent` ID prefix, and Boards
+registration through `createWebhookNotifyBackend`.
+
+Added eight prescribed test cases covering golden serialization, optional field
+presence, empty and nil configuration, the backend interface/lifecycle, builder
+creation, and registration through the real notify service. The required server
+build and race-enabled notify/Boards suites pass. `golangci-lint` was not
+installed, so the prescribed `go vet ./services/notify/notifywebhook/...`
+fallback was run and passed.
+
+Deviation: the plan asks `server/boards/boardsapp.go` to import
+`notifywebhook`, but that file only calls the package-local builder and therefore
+has no direct package reference. Adding the import would make the server fail to
+compile with an unused import. The package is imported where it is used in
+`server/boards/notifications.go`; the prescribed single backend append remains
+in `boardsapp.go`.

@@ -120,6 +120,8 @@ func NewBoardsApp(api model.ServicesAPI, manifest *mm_model.Manifest) (*BoardsAp
 	notifyBackends = append(notifyBackends, subscriptionsBackend)
 	mentionsBackend.AddListener(subscriptionsBackend)
 
+	notifyBackends = append(notifyBackends, createWebhookNotifyBackend(backendParams))
+
 	params := server.Params{
 		Cfg:                cfg,
 		SingleUserToken:    "",

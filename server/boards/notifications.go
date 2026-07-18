@@ -11,6 +11,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-boards/server/services/config"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/notify/notifymentions"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/notify/notifysubscriptions"
+	"github.com/mattermost/mattermost-plugin-boards/server/services/notify/notifywebhook"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/notify/plugindelivery"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/permissions"
 	"github.com/mattermost/mattermost-plugin-boards/server/services/store"
@@ -63,6 +64,15 @@ func createSubscriptionsNotifyBackend(params notifyBackendParams) (*notifysubscr
 	backend := notifysubscriptions.New(backendParams)
 
 	return backend, nil
+}
+
+func createWebhookNotifyBackend(params notifyBackendParams) *notifywebhook.Backend {
+	backendParams := notifywebhook.BackendParams{
+		Config: params.cfg,
+		Logger: params.logger,
+	}
+
+	return notifywebhook.New(backendParams)
 }
 
 func createDelivery(servicesAPI model.ServicesAPI, serverRoot string) (*plugindelivery.PluginDelivery, error) {
